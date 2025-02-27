@@ -1,4 +1,5 @@
 import Directions from "./Directions.class.js";
+import {Skills} from "./Skills.class.js";
 
 class Cell
 {
@@ -11,6 +12,7 @@ class Cell
     x;
     y;
     isVisiting;
+    contents;
 
     constructor(x, y)
     {
@@ -30,6 +32,22 @@ class Cell
         }
         this.walked = false;
         this.explored = false;
+        this.contents = [];
+    }
+
+    addEntity(entity)
+    {
+        this.contents.push(entity);
+    }
+
+    hasContents()
+    {
+        return this.contents.length > 0;
+    }
+
+    getContents()
+    {
+        return this.contents;
     }
 
     setNeighbour(direction, neighbour)
@@ -117,6 +135,14 @@ class Cell
     hasWall(direction)
     {
         return this.walls[direction.name];
+    }
+
+    visit()
+    {
+        return {skills: [
+            {name:Skills.getSkillByName("Exploring").name, xp:1},
+            {name:Skills.getSkillByName("Speed").name, xp:1}
+        ]};
     }
     
 }

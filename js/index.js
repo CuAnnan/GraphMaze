@@ -13,11 +13,9 @@ import Explorer from './Explorer.class.js';
             'visiting':'#ff3333'
         };
         let steps = 1;
-        let speed = 1;
+        let speed = 10;
         let intervalLength = 1000;
-        let mazeConfig = {cells:{rows:40,columns:60}};
-        let $rowsSlider = $('rows');
-        let $colsSlider = $('cols');
+        let mazeConfig = {cells:{rows:10,columns:15}};
 
         function $(elementId)
         {
@@ -68,9 +66,6 @@ import Explorer from './Explorer.class.js';
                 ctx.beginPath();
                 ctx.strokeStyle = "black";
 
-
-
-                //ctx.rect(x, y, width, height);
                 if(current.hasWall(Directions.North))
                 {
                     ctx.moveTo(x, y);
@@ -133,6 +128,10 @@ import Explorer from './Explorer.class.js';
             while(result === false && i < steps)
             {
                 result = explorer.exploreStep();
+                console.log(explorer.getSkillByName("Speed").getLevel(), Math.sqrt(explorer.getSkillByName("Speed").getLevel()));
+
+                intervalLength /= Math.max(1, Math.sqrt(explorer.getSkillByName("Speed").getLevel()));
+                console.log(intervalLength);
                 i++;
             }
 
@@ -140,15 +139,15 @@ import Explorer from './Explorer.class.js';
 
             if(result)
             {
-                hoistMaze().then((maze)=>{
-                    explorer = new Explorer(maze);
-                    window.setTimeout(
-                        ()=>{
-                            requestAnimationFrame(exploreMaze);
-                        },
-                        intervalLength
-                    );
-                });
+                // hoistMaze().then((maze)=>{
+                //     explorer = new ExplorerParty(maze);
+                //     window.setTimeout(
+                //         ()=>{
+                //             requestAnimationFrame(exploreMaze);
+                //         },
+                //         intervalLength
+                //     );
+                // });
             }
             else
             {
@@ -165,34 +164,6 @@ import Explorer from './Explorer.class.js';
         window.addEventListener("load", function(){
             $mazeCanvas = $('mazeCanvas');
 
-            let sliderMouseDown = false;
-            let $speed = $('speed');
-            $speed.addEventListener('mousedown', function(evt){
-               sliderMouseDown = true;
-            });
-            $speed.addEventListener('mouseup', function(evt){
-                sliderMouseDown = false;
-                setSpeed(evt.target.value);
-            });
-            $speed.addEventListener('mousemove', function(evt){
-                setSpeed(evt.target.value);
-            });
-
-            $('cols').addEventListener('change', function(evt){
-                console.log("cols");
-                mazeConfig.cells = {
-                    rows:parseInt($rowsSlider.value),
-                    columns:parseInt($colsSlider.value)
-                };
-            });
-            $('rows').addEventListener('change', function(evt){
-                console.log("rows");
-                mazeConfig.cells = {
-                    rows:parseInt($rowsSlider.value),
-                    columns:parseInt($colsSlider.value)
-                };
-
-            });
 
             // $('speed').addEventListener('change', (evt)=>{
             //     setSpeed(evt.target.value);
