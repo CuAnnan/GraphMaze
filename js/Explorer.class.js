@@ -1,6 +1,12 @@
 import {Skills} from "./Skills.class.js";
+import Signaller from "./Signaller.class.js";
 
-class Explorer
+const ExplorerEvents = {
+    mazeExplored:'mazeExplored',
+    explorerSkillIncreased:'explorerSkillIncreased',
+};
+
+class Explorer extends Signaller
 {
     /**
      * @type {Maze}
@@ -12,33 +18,29 @@ class Explorer
      */
     current;
     exploreDuration;
-    signalDoneFunction;
     energy;
     hp;
     mp;
     skills;
 
-    constructor(maze, signalDoneFunction = ()=>{console.log("Done")})
+    constructor(maze)
     {
-        this.maze = maze;
-        this.searchPath = [];
-        this.current = maze.getStartCell();
-        this.current.isVisiting = this.current.explored = true;
-        this.searchPath.push(this.current);
-        this.signalDoneFunction = signalDoneFunction;
+        super();
+        this.setMaze(maze);
         this.exploreDuration = 1;
-
         this.energy = 20;
         this.hp = 10;
         this.mp = 5;
         this.skills = {};
-        let allSkills = Skills.getSkills();
+    }
 
-        for(let skill in allSkills)
-        {
-            this.skills[skill] = Skills.getSkillByName(skill);
-        }
-
+    setMaze(maze)
+    {
+        this.searchPath = [];
+        this.maze = maze;
+        this.current = maze.getStartCell();
+        this.current.isVisiting = this.current.explored = true;
+        this.searchPath.push(this.current);
     }
 
     getSkillByName(name)
@@ -46,23 +48,33 @@ class Explorer
         return this.skills[name];
     }
 
+    improveSkill(skill)
+    {
+        if(!this.skills[skill.name])
+        {
+            let skillCopy = Object.create(Skills.getSkillByName(skill.name));
+            this.skills[skillCopy.name] =skillCopy;
+            this.signal(ExplorerEvents.explorerSkillIncreased, skillCopy);
+        }
+        this.skills[skill.name].addXP(skill.xp);
+    }
+
     exploreStep()
     {
         let result = this.current.visit();
+
         for(let skill of result.skills)
         {
-            console.log(skill);
-            this.skills[skill.name].addXP(skill.xp);
+            this.improveSkill(skill);
         }
-
-
 
         if(this.current === this.maze.getEndCell())
         {
-            this.signalDoneFunction();
+            this.signal(ExplorerEvents.mazeExplored);
             return true;
         }
         let neighbour = this.current.getRandomUnexploredNeighbour();
+        this.current.isVisiting = false;
 
         if(neighbour !== null)
         {
@@ -76,8 +88,12 @@ class Explorer
             this.searchPath.pop();
             this.current = this.searchPath[this.searchPath.length - 1];
         }
+        this.current.isVisiting = true;
+
         return false;
     }
 }
+
+export {Explorer, ExplorerEvents};
 
 export default Explorer;

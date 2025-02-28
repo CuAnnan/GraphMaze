@@ -35,3 +35,56 @@
 {
     flex: 2;
 }
+
+.skill
+{
+    margin-bottom:1.3em;
+}
+
+.skillXP
+{
+    position:absolute;
+    width:100%;
+    display:flex;
+    z-index:2;
+}
+
+.skillXP span
+{
+    flex:1;
+}
+
+.skillXPEarned
+{
+    text-align:right;
+}
+
+.skillXPToLevel
+{
+    text-align:left;
+}
+
+.skillDetails
+{
+    text-align:center;
+}
+
+.skillLevelStuff
+{
+    position:relative;
+}
+
+.skillProgressBar
+{
+    position:absolute;
+    border:1px solid black;
+    width:100%;
+    z-index:1;
+}
+
+.currentProgress
+{
+    width:0%;
+    background-color:green;
+
+}

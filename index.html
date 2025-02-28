@@ -7,11 +7,26 @@
     <body>
         <div id="mbContainer">
             <div id="leftbar">
-
+                <h2>Skills</h2>
+                <div id="skillsDiv"></div>
             </div>
             <div id="maze">
                 <canvas id="mazeCanvas" width="1200" height="800"></canvas>
             </div>
         </div>
+        <template id="skillTemplate"><div class="skill">
+                <div class="skillDetails">
+                    <span class="skillName"></span> (Level <span class="skillLevel"></span>)
+                </div>
+                <div class="skillLevelStuff">
+                    <div class="skillProgressBar">
+                        <div class="currentProgress">&nbsp;</div>
+                    </div>
+                    <div class="skillXP">
+                        <span class="skillXPEarned"></span>/<span class="skillXPToLevel"></span>
+                    </div>
+                </div>
+
+            </div></template>
     </body>
 </html>

@@ -9,7 +9,7 @@ class Skill
     {
         this.name = name;
         this.growthRate = growthRate;
-        this.level = 0;
+        this.level = 1;
         this.xp = 0;
     }
 
@@ -21,19 +21,18 @@ class Skill
     setXP(xp)
     {
         this.xp = parseInt(xp);
-        this.level = Math.floor(Math.log10(this.xp));
+        this.level = 1 + Math.floor(Math.log10(this.xp));
     }
 
     addXP(xpAmount)
     {
         this.xp += xpAmount * this.growthRate;
-        console.log(this.xp);
-        this.level = Math.max(0,Math.floor(Math.log10(this.xp)));
+        this.level = 1 + Math.max(0,Math.floor(Math.log10(this.xp)));
     }
 
     getXPToLevel()
     {
-        return Math.pow(this.level + 1, 10) - this.xp;
+        return Math.pow(10, this.getLevel());
     }
 }
 

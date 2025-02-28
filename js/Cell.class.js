@@ -139,9 +139,10 @@ class Cell
 
     visit()
     {
+        let xp = this.explored?0.5:1;
         return {skills: [
-            {name:Skills.getSkillByName("Exploring").name, xp:1},
-            {name:Skills.getSkillByName("Speed").name, xp:1}
+            {name:Skills.getSkillByName("Exploring").name, xp},
+            {name:Skills.getSkillByName("Speed").name, xp}
         ]};
     }
     

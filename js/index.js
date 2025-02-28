@@ -1,11 +1,14 @@
 import Maze from './Maze.class.js';
 import Directions from './Directions.class.js';
-import Explorer from './Explorer.class.js';
+import {Explorer, ExplorerEvents} from './Explorer.class.js';
+
+const baseInterval = 100;
 
 (
     ()=>
     {
         let $mazeCanvas, ctx, maze, cellWidth, cellHeight, mazeWidth, mazeHeight;
+        let $skillsDiv;
         let explorer;
         let colors = {
             'deadEnd':'#3333ff',
@@ -14,7 +17,7 @@ import Explorer from './Explorer.class.js';
         };
         let steps = 1;
         let speed = 10;
-        let intervalLength = 1000;
+        let intervalLength = baseInterval;
         let mazeConfig = {cells:{rows:10,columns:15}};
 
         function $(elementId)
@@ -121,6 +124,19 @@ import Explorer from './Explorer.class.js';
             }
         }
 
+        function updateSkillLevels()
+        {
+            for(let skillName in explorer.skills)
+            {
+                let $skill = $(`skill_${skillName}`);
+                let skill = explorer.getSkillByName(skillName);
+                $skill.querySelector('.skillLevel').innerText = skill.getLevel();
+                $skill.querySelector('.skillXPEarned').innerText = skill.xp;
+                $skill.querySelector('.skillXPToLevel').innerText = skill.getXPToLevel();
+                $skill.querySelector('.currentProgress').style.width = `${skill.xp/skill.getXPToLevel() * 100}%`;
+            }
+        }
+
         function exploreMaze()
         {
             let i = 0;
@@ -128,28 +144,14 @@ import Explorer from './Explorer.class.js';
             while(result === false && i < steps)
             {
                 result = explorer.exploreStep();
-                console.log(explorer.getSkillByName("Speed").getLevel(), Math.sqrt(explorer.getSkillByName("Speed").getLevel()));
-
-                intervalLength /= Math.max(1, Math.sqrt(explorer.getSkillByName("Speed").getLevel()));
-                console.log(intervalLength);
+                intervalLength = baseInterval / Math.max(1, Math.pow(explorer.getSkillByName("Speed").getLevel(), 0.025));
                 i++;
             }
 
             drawMaze();
+            updateSkillLevels();
 
-            if(result)
-            {
-                // hoistMaze().then((maze)=>{
-                //     explorer = new ExplorerParty(maze);
-                //     window.setTimeout(
-                //         ()=>{
-                //             requestAnimationFrame(exploreMaze);
-                //         },
-                //         intervalLength
-                //     );
-                // });
-            }
-            else
+            if(!result)
             {
                 window.setTimeout(
                     ()=>{
@@ -158,12 +160,34 @@ import Explorer from './Explorer.class.js';
                     intervalLength
                 );
             }
-
         }
+
+        function mazeExplored(explorer)
+        {
+            hoistMaze()
+                .then(drawMaze)
+                .then(()=>{
+                    explorer.setMaze(maze);
+                    exploreMaze();
+                });
+        }
+
+        function updateSkills(explorer, skill)
+        {
+            let $template = $('skillTemplate');
+            let $clone = $template.content.cloneNode(true);
+            $clone.firstChild.id = `skill_${skill.name}`;
+            $clone.querySelector('.skillName').innerHTML = skill.name;
+            $clone.querySelector('.skillLevel').innerHTML = skill.level;
+            $clone.querySelector('.skillXPEarned').innerHTML = skill.xp;
+            $clone.querySelector('.skillXPToLevel').innerHTML = skill.getXPToLevel();
+            $skillsDiv.appendChild($clone);
+        }
+
 
         window.addEventListener("load", function(){
             $mazeCanvas = $('mazeCanvas');
-
+            $skillsDiv = $('skillsDiv');
 
             // $('speed').addEventListener('change', (evt)=>{
             //     setSpeed(evt.target.value);
@@ -176,6 +200,8 @@ import Explorer from './Explorer.class.js';
                 .then(drawMaze)
                 .then(()=>{
                     explorer = new Explorer(maze);
+                    explorer.on(ExplorerEvents.mazeExplored, mazeExplored);
+                    explorer.on(ExplorerEvents.explorerSkillIncreased, updateSkills);
                     exploreMaze();
                 });
         });
